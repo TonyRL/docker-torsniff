@@ -12,4 +12,4 @@ COPY --from=builder /torsniff/torrsniff /root/torsniff
 EXPOSE 6881 6881/udp
 VOLUME /root/torrents
 
-ENTRYPOINT["/root/torsniff"]
+ENTRYPOINT ["/root/torsniff"]
