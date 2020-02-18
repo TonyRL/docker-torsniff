@@ -9,7 +9,7 @@ FROM alpine:latest
 
 COPY --from=builder /go/bin/torsniff /root/torsniff
 
-EXPOSE 6881 6881/udp
+EXPOSE 6881/udp
 VOLUME /root/torrents
 
 ENTRYPOINT ["/root/torsniff"]
