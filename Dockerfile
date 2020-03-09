@@ -5,7 +5,7 @@ RUN \
  go get -u -v github.com/fanpei91/torsniff
 
 
-FROM alpine:latest
+FROM lsiobase/alpine:latest
 
 COPY --from=builder /go/bin/torsniff /root/torsniff
 
