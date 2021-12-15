@@ -13,7 +13,7 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
-  IMAGE_NAME: tonyrl/torsniff
+  IMAGE_NAME: torsniff
 
 
 jobs:
@@ -27,10 +27,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-        
+
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into DockerHub
@@ -38,8 +38,8 @@ jobs:
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          
+          password: ${{ secrets.DOCKER_TOKEN }}
+
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into GitHub Container Registry
@@ -47,7 +47,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # Extract metadata (tags, labels) for Docker
@@ -57,9 +57,10 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ env.IMAGE_NAME }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          flavor: latest=true
+            ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          tags: type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
+          flavor: latest=false
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
@@ -72,3 +73,11 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha, scope=${{ github.workflow }}
           cache-to: type=gha, mode=max, scope=${{ github.workflow }}
+
+      - name: DockerHub Description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
+          short-description: ${{ github.event.repository.description }}
