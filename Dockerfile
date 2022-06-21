@@ -5,7 +5,7 @@ RUN \
  go install -v github.com/fanpei91/torsniff@latest
 
 
-FROM lsiobase/alpine:3.15
+FROM lsiobase/alpine:3.16
 
 COPY --from=builder /go/bin/torsniff /root/torsniff
 
